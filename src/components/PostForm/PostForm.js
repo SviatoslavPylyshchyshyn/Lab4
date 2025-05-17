@@ -1,36 +1,87 @@
 import React, { useState } from 'react';
 import './PostForm.css';
 
-const PostForm = ({ onSubmit }) => {
+const PostForm = ({ onSubmit, disabled }) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     date: new Date().toISOString().split('T')[0],
-    image: null
+    imageData: null
   });
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Функція для стиснення зображення
+  const compressImage = (imageData, maxWidth = 800) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = imageData;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Зменшуємо розміри, зберігаючи пропорції
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Конвертуємо в JPEG з якістю 0.7 (70%)
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.image) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        onSubmit({
-          ...formData,
-          imageData: e.target.result
-        });
-      };
-      reader.readAsDataURL(formData.image);
-    } else {
-      onSubmit(formData);
-    }
+    onSubmit(formData);
   };
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, files } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: files ? files[0] : value
-    }));
+    
+    if (name === 'image' && files && files[0]) {
+      const file = files[0];
+      
+      // Перевірка розміру файлу (максимум 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Розмір зображення не може перевищувати 5MB');
+        e.target.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const originalImageData = e.target.result;
+        
+        try {
+          // Стискаємо зображення
+          const compressedImageData = await compressImage(originalImageData);
+          
+          setFormData(prev => ({
+            ...prev,
+            imageData: compressedImageData
+          }));
+          setImagePreview(compressedImageData);
+        } catch (error) {
+          console.error('Помилка при стисненні зображення:', error);
+          alert('Помилка при обробці зображення. Спробуйте інше зображення.');
+          e.target.value = '';
+        }
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   return (
@@ -50,7 +101,7 @@ const PostForm = ({ onSubmit }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="content">Вміст:</label>
+        <label htmlFor="content">Текст:</label>
         <textarea
           id="content"
           name="content"
@@ -82,11 +133,18 @@ const PostForm = ({ onSubmit }) => {
           onChange={handleChange}
           required
         />
+        {imagePreview && (
+          <div className="image-preview">
+            <img src={imagePreview} alt="Попередній перегляд" />
+          </div>
+        )}
       </div>
 
-      <button type="submit">Опублікувати</button>
+      <button type="submit" disabled={disabled}>
+        {disabled ? 'Створення...' : 'Опублікувати'}
+      </button>
     </form>
   );
 };
 
-export default PostForm; 
+export default PostForm;
