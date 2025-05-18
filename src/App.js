@@ -72,16 +72,16 @@ function AppContent() {
       <footer>
         <p>Розроблено Святославом Пилищишином 2025 року</p>
         <p>Контакти: 098-97-12-819</p>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
           {currentUser ? (
             <>
-              <span style={{ color: '#666' }}>Увійшли як {currentUser.email}</span>
               <button 
                 className="cta-button" 
                 onClick={logout}
               >
                 Вийти
               </button>
+              <span style={{ color: '#666', fontSize: '0.9rem' }}>Увійшли як {currentUser.email}</span>
             </>
           ) : (
             <button 
@@ -91,7 +91,7 @@ function AppContent() {
                 setIsLoginForm(true);
               }}
             >
-              Реєстрація
+              Авторизація
             </button>
           )}
         </div>

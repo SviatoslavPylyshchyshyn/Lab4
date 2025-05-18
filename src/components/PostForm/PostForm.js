@@ -5,8 +5,7 @@ const PostForm = ({ onSubmit, disabled }) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    date: new Date().toISOString().split('T')[0],
-    imageData: null
+    image: null
   });
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -38,50 +37,31 @@ const PostForm = ({ onSubmit, disabled }) => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  const handleChange = async (e) => {
-    const { name, value, files } = e.target;
-    
-    if (name === 'image' && files && files[0]) {
-      const file = files[0];
-      
-      // Перевірка розміру файлу (максимум 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Розмір зображення не може перевищувати 5MB');
-        e.target.value = '';
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const originalImageData = e.target.result;
-        
-        try {
-          // Стискаємо зображення
-          const compressedImageData = await compressImage(originalImageData);
-          
+  const handleChange = (e) => {
+    if (e.target.name === 'image') {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
           setFormData(prev => ({
             ...prev,
-            imageData: compressedImageData
+            imageData: reader.result
           }));
-          setImagePreview(compressedImageData);
-        } catch (error) {
-          console.error('Помилка при стисненні зображення:', error);
-          alert('Помилка при обробці зображення. Спробуйте інше зображення.');
-          e.target.value = '';
-        }
-      };
-      reader.readAsDataURL(file);
+          setImagePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: value
+        [e.target.name]: e.target.value
       }));
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
   };
 
   return (
@@ -106,18 +86,6 @@ const PostForm = ({ onSubmit, disabled }) => {
           id="content"
           name="content"
           value={formData.content}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="date">Дата:</label>
-        <input
-          type="date"
-          id="date"
-          name="date"
-          value={formData.date}
           onChange={handleChange}
           required
         />

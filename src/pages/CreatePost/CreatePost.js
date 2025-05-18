@@ -16,13 +16,14 @@ const CreatePost = () => {
       setError(null);
       console.log('Початок створення публікації...', { title: postData.title });
 
+      const currentDate = new Date().toISOString();
       const articleData = {
         title: postData.title,
         content: postData.content,
         moreContent: postData.content,
-        date: new Date(postData.date).toISOString(),
-        createdAt: new Date().toISOString(),
-        image: postData.imageData, // Використовуємо base64 зображення
+        date: currentDate,
+        createdAt: currentDate,
+        image: postData.imageData,
         comments: []
       };
 

@@ -26,8 +26,8 @@ const MyPosts = () => {
         {posts.map(post => (
           <article key={post.id} className="post-card">
             <h3>{post.title}</h3>
-            {post.imageData && (
-              <img src={post.imageData} alt={post.title} />
+            {post.image && (
+              <img src={post.image} alt={post.title} />
             )}
             <p className="content">{post.content}</p>
             <p className="date">
