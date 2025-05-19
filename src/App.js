@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Articles from './pages/Articles/Articles';
 import CreatePost from './pages/CreatePost/CreatePost';
 import MyPosts from './pages/MyPosts/MyPosts';
+import Favorites from './pages/Favorites/Favorites';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import { useAuth, AuthProvider } from './contexts/AuthContext';
@@ -29,6 +30,7 @@ function AppContent() {
         <Link to="/articles" className="nav-link">Статті</Link>
         <Link to="/create-post" className="nav-link">Створити публікацію</Link>
         <Link to="/my-posts" className="nav-link">Мої публікації</Link>
+        <Link to="/favorites" className="nav-link">Вподобані</Link>
       </nav>
 
       <main>
@@ -36,6 +38,7 @@ function AppContent() {
           <Route path="/articles" element={<Articles />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/my-posts" element={<MyPosts />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/" element={
             <div className="home-page">
               <section className="main-welcome-section">
